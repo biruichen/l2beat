@@ -37,6 +37,20 @@ type Values = {
 }
 type ValuesMap = Map<number, Values>
 
+type ApiProject = {
+  id: ProjectId
+  minTimestamp: UnixTime
+  type: Project['type']
+  slug: string
+  sources: Map<
+    string,
+    {
+      name: string
+      minTimestamp: UnixTime
+    }
+  >
+}
+
 export class Tvl2Controller {
   private readonly amountConfig: AmountConfigMap
   private readonly currAmountConfigs: Map<
@@ -44,13 +58,7 @@ export class Tvl2Controller {
     AmountConfigEntry & { configId: string }
   >
   private readonly priceConfigs: PriceConfigIdMap
-  private readonly projects: {
-    id: ProjectId
-    minTimestamp: UnixTime
-    type: Project['type']
-    slug: string
-    sources: Map<string, { name: string; minTimestamp: UnixTime }>
-  }[]
+  private readonly projects: ApiProject[]
   private minTimestamp: Record<Project['type'], UnixTime>
 
   constructor(
@@ -494,13 +502,7 @@ export class Tvl2Controller {
   // TODO: instead of assert we should interpolate values so the page builds even with unsynced sources
   private getConfiguredSources(
     values: ValueRecord[],
-    project: {
-      id: ProjectId
-      minTimestamp: UnixTime
-      type: Project['type']
-      slug: string
-      sources: Map<string, { name: string; minTimestamp: UnixTime }>
-    },
+    project: ApiProject,
     timestamp: UnixTime,
   ) {
     const valuesSources = values.map((x) => x.dataSource)
@@ -522,13 +524,7 @@ export class Tvl2Controller {
   }
 
   private getTimestampsForProject(
-    project: {
-      id: ProjectId
-      minTimestamp: UnixTime
-      type: Project['type']
-      slug: string
-      sources: Map<string, { name: string; minTimestamp: UnixTime }>
-    },
+    project: ApiProject,
     sixHourlyCutOff: UnixTime,
     hourlyCutOff: UnixTime,
     lastHour: UnixTime,
